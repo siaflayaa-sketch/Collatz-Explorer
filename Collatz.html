@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Collatz Besar (Simpan Semua Langkah)</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    #log { white-space: pre-wrap; max-height: 300px; overflow-y: scroll; background: #f4f4f4; padding: 10px; }
+  </style>
+</head>
+<body>
+  <h2>Collatz Sampai Triliunan (Dengan Semua Langkah)</h2>
+  <input type="text" id="angka" placeholder="Contoh: 9876543210123456789" />
+  <button onclick="hitungCollatz()">Mulai</button>
+  <button onclick="unduhLangkah()">Unduh Semua Langkah</button>
+  <p>Langkah: <span id="langkah">0</span></p>
+  <div id="log"></div>
+
+  <script>
+    let semuaLangkah = [];
+
+    async function hitungCollatz() {
+      const input = document.getElementById("angka").value.trim();
+      let n = BigInt(input);
+      semuaLangkah = [];
+
+      if (n < 1n) {
+        document.getElementById("log").innerText = "Masukkan bilangan bulat positif.";
+        return;
+      }
+
+      let langkah = 0;
+      const logArea = document.getElementById("log");
+      const langkahText = document.getElementById("langkah");
+
+      logArea.innerText = "";
+      semuaLangkah.push(n);
+
+      while (n !== 1n) {
+        n = (n % 2n === 0n) ? n / 2n : 3n * n + 1n;
+        semuaLangkah.push(n);
+        langkah++;
+
+        if (langkah <= 1000) {
+          logArea.innerText += `${langkah}: ${n}\n`;
+        }
+
+        if (langkah % 50000 === 0) {
+          langkahText.innerText = langkah;
+          await new Promise(r => setTimeout(r, 0));
+        }
+      }
+
+      langkahText.innerText = langkah;
+      logArea.innerText += `\nSelesai dalam ${langkah} langkah. Menampilkan 1000 langkah pertama saja.`;
+    }
+
+    function unduhLangkah() {
+      if (semuaLangkah.length === 0) {
+        alert("Belum ada data yang dihitung!");
+        return;
+      }
+
+      const blob = new Blob([semuaLangkah.map((v, i) => `${i}: ${v}`).join('\n')], { type: "text/plain" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "collatz_langkah.txt";
+      link.click();
+    }
+  </script>
+</body>
+</html>
